@@ -3,6 +3,16 @@ import MessageList from './components/MessageList';
 import SendMessageForm from './components/SendMessageForm';
 import TypingIndicator from './components/TypingIndicator';
 import WhosOnlineList from './components/WhosOnlineList';
+import socketClient from 'socket.io-client';
+
+// Connect to server socket
+const SERVER = 'http://127.0.0.1:5000/ws';
+const socket = socketClient(SERVER, {
+	path: '/ws/socket.io'
+});
+socket.on('connection', () => {
+	console.log(`I'm connected with the back-end`);
+});
 
 class ChatScreen extends Component {
 	constructor(props) {
