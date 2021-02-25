@@ -3,16 +3,7 @@ import MessageList from './components/MessageList';
 import SendMessageForm from './components/SendMessageForm';
 import TypingIndicator from './components/TypingIndicator';
 import WhosOnlineList from './components/WhosOnlineList';
-import socketClient from 'socket.io-client';
-
-// Connect to server socket
-const SERVER = 'http://127.0.0.1:5000/ws';
-const socket = socketClient(SERVER, {
-	path: '/ws/socket.io'
-});
-socket.on('connection', () => {
-	console.log(`I'm connected with the back-end`);
-});
+import { io } from 'socket.io-client';
 
 class ChatScreen extends Component {
 	constructor(props) {
@@ -25,6 +16,17 @@ class ChatScreen extends Component {
 		};
 		this.sendMessage = this.sendMessage.bind(this);
 		this.sendTypingEvent = this.sendTypingEvent.bind(this);
+
+		// Connect to server socket
+		const SERVER = 'http://127.0.0.1:5000';
+		const socket = io(SERVER, {
+			path: '/ws/socket.io'
+		});
+		socket.emit('message', 'Hello from the front end');
+
+		socket.on('reply', (data) => {
+			console.log(data);
+		});
 	}
 
 	sendMessage(text) {
