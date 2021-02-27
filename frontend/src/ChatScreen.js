@@ -9,8 +9,7 @@ class ChatScreen extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			// currentUser: {},
-			currentRoom: {},
+			currentUsers: [],
 			messages: [],
 			usersWhoAreTyping: []
 		};
@@ -26,9 +25,36 @@ class ChatScreen extends Component {
 		// Socket events
 		this.socket.on('connect', () => {
 			console.log('Connected!');
+			this.socket.emit('online', {
+				name: this.props.currentUsername,
+				presence: 'online'
+			});
 		});
 
-		this.socket.on('response', (message) => {
+		this.socket.on('status', (data) => {
+			const user = {
+				name: data.name,
+				presence: data.presence
+			};
+
+			if (user.presence === 'online') {
+				this.setState({
+					currentUsers: [ ...this.state.currentUsers, user ]
+				});
+			} else {
+				const newList = this.state.currentUsers.filter((item) => item.presence !== 'offline');
+				this.setState({
+					currentUsers: newList
+				});
+			}
+		});
+
+		this.socket.on('response', (data) => {
+			const message = {
+				senderId: data.username,
+				text: data.text
+			};
+
 			this.setState({
 				messages: [ ...this.state.messages, message ]
 			});
@@ -36,11 +62,18 @@ class ChatScreen extends Component {
 
 		this.socket.on('disconnect', () => {
 			console.log('Lost connection to the server.');
+			this.socket.emit('offline', {
+				name: this.props.currentUsername,
+				presence: 'offline'
+			});
 		});
 	}
 
-	sendMessage(text) {
-		this.socket.emit('message', text);
+	sendMessage(text, username) {
+		this.socket.emit('message', {
+			text: text,
+			username: username
+		});
 	}
 
 	// sendTypingEvent(message) {
@@ -121,12 +154,12 @@ class ChatScreen extends Component {
 			<div style={styles.container}>
 				<div style={styles.chatContainer}>
 					<aside style={styles.whosOnlineListContainer}>
-						<WhosOnlineList currentUser={this.state.currentUser} users={this.state.currentRoom.users} />
+						<WhosOnlineList currentUser={this.props.currentUsername} users={this.state.currentUsers} />
 					</aside>
 					<section style={styles.chatListContainer}>
 						<MessageList messages={this.state.messages} style={styles.chatList} />
 						<TypingIndicator usersWhoAreTyping={this.state.usersWhoAreTyping} />
-						<SendMessageForm onSubmit={this.sendMessage} />
+						<SendMessageForm onSubmit={this.sendMessage} currentUser={this.props.currentUsername} />
 					</section>
 				</div>
 			</div>

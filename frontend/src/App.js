@@ -13,20 +13,6 @@ class App extends Component {
 	}
 
 	onUsernameSubmitted(username) {
-		// fetch('http://localhost:3001/users', {
-		// 	method: 'POST',
-		// 	headers: {
-		// 		'Content-Type': 'application/json'
-		// 	},
-		// 	body: JSON.stringify({ username })
-		// })
-		// 	.then((response) => {
-		// 		this.setState({
-		// 			currentUsername: username,
-		// 			currentScreen: 'ChatScreen'
-		// 		});
-		// 	})
-		// 	.catch((error) => console.error('error', error));
 		this.setState({
 			currentUsername: username,
 			currentScreen: 'ChatScreen'
