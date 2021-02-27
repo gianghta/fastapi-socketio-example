@@ -3,14 +3,13 @@ from . import sio
 
 @sio.event
 def connect(sid, environ):
-    print('connect', sid)
-    sio.emit('connection')
+    print("connected to front end", sid)
 
-@sio.event
-def message(sid, data):
-    print('message', data)
-    return "Hello there!"
+@sio.on('message')
+async def broadcast(sid, data: str):
+    print(f'sender-{sid}: ', data)
+    await sio.emit('response', data)
 
 @sio.event
 def disconnect(sid):
-    print('disconnect', sid)
+    print('disconnected from front end', sid)

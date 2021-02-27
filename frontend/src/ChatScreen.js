@@ -11,36 +11,43 @@ class ChatScreen extends Component {
 		this.state = {
 			// currentUser: {},
 			currentRoom: {},
-			message: [],
+			messages: [],
 			usersWhoAreTyping: []
 		};
 		this.sendMessage = this.sendMessage.bind(this);
-		this.sendTypingEvent = this.sendTypingEvent.bind(this);
+		// this.sendTypingEvent = this.sendTypingEvent.bind(this);
 
 		// Connect to server socket
 		const SERVER = 'http://127.0.0.1:5000';
-		const socket = io(SERVER, {
+		this.socket = io(SERVER, {
 			path: '/ws/socket.io'
 		});
-		socket.emit('message', 'Hello from the front end');
 
-		socket.on('reply', (data) => {
-			console.log(data);
+		// Socket events
+		this.socket.on('connect', () => {
+			console.log('Connected!');
+		});
+
+		this.socket.on('response', (message) => {
+			this.setState({
+				messages: [ ...this.state.messages, message ]
+			});
+		});
+
+		this.socket.on('disconnect', () => {
+			console.log('Lost connection to the server.');
 		});
 	}
 
 	sendMessage(text) {
-		this.state.currentUser.sendMessage({
-			text,
-			roomId: this.state.currentRoom.id
-		});
+		this.socket.emit('message', text);
 	}
 
-	sendTypingEvent() {
-		this.state.currentUser
-			.isTypingIn({ roomId: this.state.currentRoom.id })
-			.catch((error) => console.error('error', error));
-	}
+	// sendTypingEvent(message) {
+	// 	this.state.currentUser
+	// 		.isTypingIn({ roomId: this.state.currentRoom.id })
+	// 		.catch((error) => console.error('error', error));
+	// }
 
 	// componentDidMount() {
 	// 	const chatManager = new Chatkit.ChatManager({
@@ -119,7 +126,7 @@ class ChatScreen extends Component {
 					<section style={styles.chatListContainer}>
 						<MessageList messages={this.state.messages} style={styles.chatList} />
 						<TypingIndicator usersWhoAreTyping={this.state.usersWhoAreTyping} />
-						<SendMessageForm onSubmit={this.sendMessage} onChange={this.sendTypingEvent} />
+						<SendMessageForm onSubmit={this.sendMessage} />
 					</section>
 				</div>
 			</div>

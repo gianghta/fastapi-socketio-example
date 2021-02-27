@@ -19,6 +19,18 @@ class MessagesList extends Component {
 			},
 			message: { fontSize: 15 }
 		};
+
+		if (this.props.messages) {
+			var renderMessages = this.props.messages.map((message, index) => (
+				<li key={index} style={styles.li}>
+					<div>
+						<span style={styles.senderUsername}>Someone</span>{' '}
+					</div>
+					<p style={styles.message}>{message}</p>
+				</li>
+			));
+		}
+
 		return (
 			<div
 				style={{
@@ -26,16 +38,19 @@ class MessagesList extends Component {
 					...styles.container
 				}}
 			>
-				{/* <ul style={styles.ul}>
-					{this.props.messages.map((message, index) => (
+				<ul style={styles.ul}>
+					{/* {this.props.messages.map((message, index) => (
 						<li key={index} style={styles.li}>
 							<div>
 								<span style={styles.senderUsername}>{message.senderId}</span>{' '}
+								<span style={styles.senderUsername}>Someone</span>{' '}
 							</div>
 							<p style={styles.message}>{message.text}</p>
+							<p style={styles.message}>{message}</p>
 						</li>
-					))}
-				</ul> */}
+					))} */}
+					{renderMessages}
+				</ul>
 			</div>
 		);
 	}
