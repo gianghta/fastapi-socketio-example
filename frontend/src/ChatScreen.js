@@ -25,28 +25,23 @@ class ChatScreen extends Component {
 		// Socket events
 		this.socket.on('connect', () => {
 			console.log('Connected!');
-			this.socket.emit('online', {
+			this.socket.emit('update_status', {
 				name: this.props.currentUsername,
 				presence: 'online'
 			});
 		});
 
 		this.socket.on('status', (data) => {
-			const user = {
-				name: data.name,
-				presence: data.presence
-			};
+			this.setState({
+				currentUsers: data
+			});
+		});
 
-			if (user.presence === 'online') {
-				this.setState({
-					currentUsers: [ ...this.state.currentUsers, user ]
-				});
-			} else {
-				const newList = this.state.currentUsers.filter((item) => item.presence !== 'offline');
-				this.setState({
-					currentUsers: newList
-				});
-			}
+		this.socket.on('re_evaluate_status', () => {
+			this.socket.emit('update_status', {
+				name: this.props.currentUsername,
+				presence: 'online'
+			});
 		});
 
 		this.socket.on('response', (data) => {
@@ -57,14 +52,6 @@ class ChatScreen extends Component {
 
 			this.setState({
 				messages: [ ...this.state.messages, message ]
-			});
-		});
-
-		this.socket.on('disconnect', () => {
-			console.log('Lost connection to the server.');
-			this.socket.emit('offline', {
-				name: this.props.currentUsername,
-				presence: 'offline'
 			});
 		});
 	}
